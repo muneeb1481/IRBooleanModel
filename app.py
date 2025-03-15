@@ -2,7 +2,7 @@ import streamlit as st
 from nltk.stem.porter import PorterStemmer
 
 # Initialize Porter Stemmer
-stem_tool = PorterStemmer()
+stemmer = PorterStemmer()
 
 def check_query_validity(user_input):
     user_input = user_input.lower().strip()  # Remove extra spaces and convert to lowercase
@@ -26,7 +26,7 @@ def check_query_validity(user_input):
             if input_words[idx] in valid_operators:
                 return None, None, False
 
-    processed_terms = [stem_tool.stem(word) for word in input_words if word not in valid_operators]
+    processed_terms = [stemmer.stem(word) for word in input_words if word not in valid_operators]
     extracted_ops = [word for word in input_words if word in valid_operators]
 
     return processed_terms, extracted_ops, True
@@ -97,7 +97,7 @@ def validate_proximity_query(user_input):
         if not word.isalpha():
             return (), False
 
-    processed_terms = tuple(stem_tool.stem(word) for word in input_words)
+    processed_terms = tuple(stemmer.stem(word) for word in input_words)
     return processed_terms, True
 
 
@@ -149,8 +149,11 @@ st.markdown("""
 3. Only **alphabets** are allowed in terms.
 """)
 
-boolean_query_input = st.text_input("Enter your Boolean query:")
-if st.button("Search Boolean Query"):
+with st.form("boolean_query_form"):
+    boolean_query_input = st.text_input("Enter your Boolean query:")
+    boolean_submit = st.form_submit_button("Search Boolean Query")
+
+if boolean_submit:
     if not boolean_query_input:
         st.error("Query cannot be empty.")
     else:
@@ -183,9 +186,12 @@ st.markdown("""
 3. Specify the maximum distance (**K**) between the two words.
 """)
 
-proximity_query_input = st.text_input("Enter your proximity query:")
-k_value = st.number_input("Enter the value of K (maximum distance):", min_value=1, step=1, format="%d")
-if st.button("Search Proximity Query"):
+with st.form("proximity_query_form"):
+    proximity_query_input = st.text_input("Enter your proximity query:")
+    k_value = st.number_input("Enter the value of K (maximum distance):", min_value=1, step=1, format="%d")
+    proximity_submit = st.form_submit_button("Search Proximity Query")
+
+if proximity_submit:
     if not proximity_query_input:
         st.error("Query cannot be empty.")
     else:
